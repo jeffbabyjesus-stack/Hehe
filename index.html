@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d17">
+<title>JEFF — Online Video Player</title>
+<style>
+:root{--bg:#080d17;--panel:#101827;--panel2:#172235;--line:#26344a;--text:#f3f6fc;--muted:#a8b4c7;--blue:#1687ff;--blue2:#0866d6}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 40% -30%,#142847 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;color:inherit}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #60b4ff;outline-offset:2px}
+.topbar{height:78px;display:flex;align-items:center;gap:24px;padding:0 clamp(16px,3vw,42px);border-bottom:1px solid #1e293b;background:#080d17eF;position:sticky;top:0;z-index:5;backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:12px;min-width:235px;text-decoration:none;color:inherit}.brandmark{width:44px;height:44px;background:linear-gradient(145deg,#29a2ff,#0866d6);border-radius:13px;display:grid;place-items:center;box-shadow:0 8px 24px #0878ed40}.brandmark svg{width:22px;fill:#06111f}.brandname{font-size:24px;font-weight:850;letter-spacing:2px;line-height:1}.brandtag{font-size:11px;color:#b7c5d9;letter-spacing:1.5px;margin-top:5px}
+.nav{display:flex;gap:8px}.nav button,.iconbtn{border:0;background:transparent;color:var(--muted);padding:11px 14px;border-radius:11px}.nav button.active,.nav button:hover,.iconbtn:hover{background:#172235;color:#fff}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;background:#141e2e;border:1px solid #26344a;border-radius:99px;padding:6px 7px 6px 16px;width:min(440px,35vw)}.search input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#fff}.search input::placeholder{color:#8f9db2}.search button,.primary{border:0;border-radius:99px;background:var(--blue);padding:10px 16px;font-weight:650}.search button:hover,.primary:hover{background:#36a0ff}
+main{max-width:1700px;margin:auto;padding:26px clamp(14px,2vw,30px) 48px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start}
+.player{background:#000;border:1px solid #2b3a50;border-radius:13px;overflow:hidden;position:relative;box-shadow:0 20px 70px #0005}.video-wrap{position:relative;aspect-ratio:16/9;background:#03060b;display:grid;place-items:center}.video-wrap video{width:100%;height:100%;object-fit:contain;background:#03060b}.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#13233a 0,#050910 70%)}.empty.hidden{display:none}.empty-inner{max-width:470px}.bigplay{width:76px;height:76px;border:0;border-radius:50%;background:var(--blue);display:grid;place-items:center;margin:0 auto 18px;box-shadow:0 0 0 12px #1687ff20}.bigplay svg{width:28px;fill:white;margin-left:4px}.empty h2{margin:0 0 7px;font-size:24px}.empty p{margin:0;color:var(--muted)}
+.controls{background:linear-gradient(transparent,#03060bf2);position:absolute;bottom:0;left:0;right:0;padding:30px 17px 14px;transition:opacity .2s}.controls.hide{opacity:0;pointer-events:none}.progress{width:100%;accent-color:var(--blue);height:5px;cursor:pointer;margin:0 0 11px;display:block}.controlrow{display:flex;align-items:center;gap:13px}.ctrl{width:35px;height:35px;border:0;background:transparent;border-radius:8px;display:grid;place-items:center}.ctrl:hover{background:#ffffff20}.ctrl svg{width:22px;height:22px;fill:currentColor}.time{font-variant-numeric:tabular-nums;color:#e1e8f3;font-size:13px;white-space:nowrap}.spacer{flex:1}.select{background:#121b29;color:#f4f7fb;border:1px solid #35445b;border-radius:8px;padding:7px 9px;max-width:130px;font-size:13px}.cc-label{font-size:12px;font-weight:800;border:1px solid #dbe6f5;border-radius:4px;padding:2px 4px}
+.video-info{padding:20px 5px 0}.titleline{display:flex;gap:15px;align-items:flex-start;justify-content:space-between}.video-info h1{font-size:clamp(21px,2.1vw,29px);line-height:1.2;margin:0 0 15px}.actions{display:flex;gap:8px;flex-wrap:wrap}.softbtn{background:#131d2d;border:1px solid #26344a;border-radius:99px;padding:9px 13px;color:#dbe5f3}.softbtn:hover{background:#1d2b40}.channel{display:flex;align-items:center;gap:12px;margin:10px 0 16px}.avatar{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#36b4ff,#075ac5);font-weight:850}.channel strong{display:block}.channel small{color:var(--muted)}.description{color:#c2ccda;max-width:850px}.chips{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}.chip{background:#141f30;color:#bac7d9;padding:6px 11px;border-radius:99px;font-size:12px}
+.sidebar{border:1px solid #1e2b3e;background:#0c1320;border-radius:13px;padding:16px}.sidehead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.sidehead h2{font-size:18px;margin:0}.autoplay{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}.switch{appearance:none;width:37px;height:21px;border-radius:99px;background:#35445a;position:relative;cursor:pointer;transition:.2s}.switch:checked{background:var(--blue)}.switch:before{content:"";position:absolute;width:15px;height:15px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s}.switch:checked:before{transform:translateX(16px)}
+.queue{display:flex;flex-direction:column;gap:10px}.queueitem{display:grid;grid-template-columns:124px minmax(0,1fr);gap:12px;padding:7px;border-radius:10px;cursor:pointer;border:1px solid transparent}.queueitem:hover,.queueitem.selected{background:#13213a;border-color:#1e3c62}.thumb{height:72px;border-radius:7px;background:linear-gradient(135deg,#174c70,#e8a45c);position:relative;overflow:hidden;display:grid;place-items:center;color:#fff;font-size:25px}.thumb:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,#0006)}.thumb span{z-index:1}.duration{position:absolute;z-index:2;right:5px;bottom:4px;background:#000b;border-radius:4px;font-size:11px;padding:2px 4px}.qtitle{font-size:13px;font-weight:650;line-height:1.35;margin:3px 0 6px}.qsub{font-size:12px;color:var(--muted)}.note{margin-top:15px;border-top:1px solid #243146;padding-top:13px;color:#8190a6;font-size:12px}
+.localitem{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center;padding:10px;border:1px solid #26344a;border-radius:10px;background:#0b1320}
+.localitem.active{border-color:#1687ff;background:#10223a}.fileicon{width:40px;height:40px;display:grid;place-items:center;background:#172943;border-radius:9px;color:#69b9ff;font-size:20px}.filename{font-size:13px;font-weight:650;overflow-wrap:anywhere}.filesize{font-size:11px;color:#8f9db2}.localitem button{border:1px solid #34445c;background:#172235;border-radius:8px;padding:7px 10px;font-size:12px}
+
+.linkpanel{margin:24px 0 0;border:1px solid #26344a;background:#0e1725;border-radius:13px;padding:18px}.panelhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.panelhead h2{margin:0;font-size:17px}.urlrow{display:flex;gap:9px}.urlrow input,.subtitle-row input{flex:1;min-width:0;background:#080e18;color:#fff;border:1px solid #34445c;border-radius:9px;padding:12px 14px}.hint{color:#8f9db2;font-size:12px;margin:10px 0 0}.moretools{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}.filelabel{display:inline-flex;align-items:center;gap:8px;border:1px solid #34445c;background:#141f30;padding:9px 13px;border-radius:9px;cursor:pointer}.filelabel input{display:none}.subtitle-row{display:flex;gap:9px;flex:1}.status{font-size:12px;color:#8f9db2;margin-top:10px;min-height:18px}
+footer{text-align:center;color:#738198;padding:26px 15px 10px;font-size:12px}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr) 290px}.brand{min-width:auto}.brandtag{display:none}.nav{display:none}.search{width:min(440px,55vw)}.queueitem{grid-template-columns:105px minmax(0,1fr)}.thumb{height:64px}}
+@media(max-width:760px){.topbar{height:auto;min-height:70px;flex-wrap:wrap;gap:12px;padding:12px 15px}.brandname{font-size:20px}.brandmark{width:39px;height:39px}.search{order:3;width:100%;margin:0}.layout{grid-template-columns:1fr}.sidebar{order:2}.queue{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.queueitem{grid-template-columns:1fr;gap:7px}.thumb{height:auto;aspect-ratio:16/9}.qtitle{font-size:12px}.titleline{display:block}.actions{margin-bottom:12px}.controlrow{gap:5px}.time{font-size:11px}.select{max-width:93px;padding:6px;font-size:11px}.controls{padding:24px 10px 9px}.ctrl{width:30px}.urlrow{flex-wrap:wrap}.urlrow input{flex-basis:100%}.urlrow .primary{flex:1}.linkpanel{padding:14px}}
+@media(max-width:400px){.queue{grid-template-columns:1fr}.queueitem{grid-template-columns:115px minmax(0,1fr)}.thumb{height:66px}.time{display:none}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="JEFF home">
+    <span class="brandmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13L19 12z"/></svg></span>
+    <span><span class="brandname">JEFF</span><span class="brandtag" style="display:block">ONLINE VIDEO PLAYER</span></span>
+  </a>
+  <nav class="nav" aria-label="Main navigation"><button class="active">⌂ &nbsp; Home</button><button onclick="document.querySelector('#videoUrl').focus()">⌕ &nbsp; Open video</button><button onclick="showStatus('Your library is stored in this browser session.')">▣ &nbsp; Library</button></nav>
+  <form class="search" id="searchForm"><input id="topUrl" type="url" placeholder="Search or paste a video link…" aria-label="Video URL"><button type="submit" title="Open video">Open ↗</button></form>
+  <button class="iconbtn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☼</button>
+</header>
+<main>
+<div class="layout">
+<section>
+  <div class="player" id="player">
+    <div class="video-wrap">
+      <video id="video" playsinline preload="metadata"></video>
+      <div class="empty" id="empty">
+        <div class="empty-inner">
+          <button class="bigplay" id="chooseVideo" aria-label="Choose a video"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+          <h2>Your next video starts here</h2>
+          <p>Paste a direct video link below, or choose a video file from your device.</p>
+        </div>
+      </div>
+      <div class="controls" id="controls">
+        <input class="progress" id="progress" type="range" min="0" max="1000" value="0" aria-label="Seek">
+        <div class="controlrow">
+          <button class="ctrl" id="playBtn" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+          <button class="ctrl" id="muteBtn" aria-label="Mute"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg></button>
+          <span class="time" id="time">0:00 / 0:00</span><span class="spacer"></span>
+          <select class="select" id="speed" aria-label="Playback speed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value=".75">0.75×</option><option value="1" selected>1× Speed</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select>
+          <select class="select" id="quality" aria-label="Video quality"><option value="auto">Auto quality</option></select>
+          <button class="ctrl" id="ccBtn" aria-label="Toggle subtitles" title="Toggle subtitles"><span class="cc-label">CC</span></button>
+          <button class="ctrl" id="fullscreenBtn" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="video-info">
+    <div class="titleline"><h1 id="videoTitle">Welcome to JEFF Online Video Player</h1><div class="actions"><button class="softbtn" id="shareBtn">↗ Share</button><button class="softbtn" id="saveBtn">▣ Save</button></div></div>
+    <div class="channel"><div class="avatar">J</div><div><strong>JEFF Player</strong><small id="sourceLabel">Your personal online video space</small></div></div>
+    <p class="description" id="description">Play videos from direct links or your device. Use the controls to change playback speed, choose available stream quality, enable subtitles, or watch fullscreen.</p>
+    <div class="chips"><span class="chip">Online video</span><span class="chip">Subtitles</span><span class="chip">HD quality</span><span class="chip">Responsive</span></div>
+  </div>
+  <section class="linkpanel" aria-label="Open a video">
+    <div class="panelhead"><h2>Play a video</h2><label class="filelabel">＋ Add videos<input id="fileInput" type="file" accept="video/*" multiple></label><button class="softbtn" id="folderBtn" type="button">▣ Open folder</button></div>
+    <form class="urlrow" id="urlForm"><input id="videoUrl" type="url" placeholder="Paste a direct MP4, WebM, or HLS (.m3u8) link" aria-label="Video URL" required><button class="primary" type="submit">Play video</button></form>
+    <p class="hint">Works with direct video URLs and HLS streams (.m3u8). Some websites block embedding or require a login; ordinary webpage links (including most YouTube watch links) are not direct video files.</p>
+    <div class="moretools">
+      <label class="filelabel">＋ Add subtitle file (.vtt)<input id="subtitleFile" type="file" accept=".vtt,text/vtt"></label>
+      <div class="subtitle-row"><input id="subtitleUrl" type="url" placeholder="Or paste a .vtt subtitle URL" aria-label="Subtitle URL"><button class="softbtn" id="addSubtitle" type="button">Add subtitles</button></div>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </section>
+  <section class="linkpanel" aria-label="Local video library">
+    <div class="panelhead"><h2>My device library</h2><div class="moretools" style="margin:0"><button class="softbtn" id="folderLibraryBtn" type="button">Choose folder</button><button class="softbtn" id="clearLibraryBtn" type="button">Clear list</button></div></div>
+    <div id="localLibrary" class="queue"><p class="hint">Choose videos or a folder from your device. Selected files will appear here so you can play them one by one.</p></div>
+    <p class="hint">Privacy: files stay on your device and are read by this page only after you select them. Browsers do not allow websites to scan your whole phone/PC library without permission.</p>
+  </section>
+</section>
+<aside class="sidebar">
+  <div class="sidehead"><h2>Up next</h2><label class="autoplay">Autoplay <input class="switch" id="autoplay" type="checkbox" checked></label></div>
+  <div class="queue" id="queue">
+    <div class="queueitem selected" data-demo="0"><div class="thumb" style="background:linear-gradient(155deg,#7dc4e8,#f6b16b 48%,#263f58)">☀<span class="duration">Demo</span></div><div><div class="qtitle">The Beauty of Nature</div><div class="qsub">Sample preview</div></div></div>
+    <div class="queueitem" data-demo="1"><div class="thumb" style="background:linear-gradient(145deg,#f2b16a,#243c67)">▥<span class="duration">Demo</span></div><div><div class="qtitle">City Life</div><div class="qsub">Sample preview</div></div></div>
+    <div class="queueitem" data-demo="2"><div class="thumb" style="background:linear-gradient(145deg,#24c4dc,#084c79)">≈<span class="duration">Demo</span></div><div><div class="qtitle">Ocean Wonders</div><div class="qsub">Sample preview</div></div></div>
+  </div>
+  <p class="note">Add your own video link to start playback. The queue items are visual examples and do not contain bundled videos.</p>
+</aside>
+</div>
+<footer>JEFF ONLINE VIDEO PLAYER · A lightweight browser-based player</footer>
+</main>
+<input id="subtitlePicker" type="file" accept=".vtt,text/vtt" hidden>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<script>
+(() => {
+ const $ = id => document.getElementById(id);
+ const video = $('video'); let hls = null, currentObjectUrl = null, subtitleObjectUrl = null, currentUrl = '', saved = false;
+ const playIcon = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+ const pauseIcon = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+ function showStatus(msg){$('status').textContent=msg}
+ window.showStatus=showStatus;
+ function fmt(t){if(!Number.isFinite(t))return '0:00';t=Math.max(0,Math.floor(t));let h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return h?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`}
+ function cleanup(){if(hls){hls.destroy();hls=null}for(const t of [...video.querySelectorAll('track')])t.remove();if(subtitleObjectUrl){URL.revokeObjectURL(subtitleObjectUrl);subtitleObjectUrl=null}}
+ function resetQuality(){ $('quality').innerHTML='<option value="auto">Auto quality</option>'; $('quality').disabled=true }
+ function setTitle(name){$('videoTitle').textContent=name||'Now playing';$('sourceLabel').textContent=currentUrl?'Video loaded':'Local video file'}
+ function loadVideo(url,name=''){cleanup();resetQuality();activeLocalId=null;renderLocalLibrary();currentUrl=url;video.pause();video.removeAttribute('src');video.load();$('empty').classList.add('hidden');$('progress').value=0;
+   const isHls=/\.m3u8($|[?#])/i.test(url);
+   if(isHls && window.Hls && Hls.isSupported()){
+     hls=new Hls({enableWorker:true});hls.loadSource(url);hls.attachMedia(video);
+     hls.on(Hls.Events.MANIFEST_PARSED,()=>{const levels=hls.levels;const q=$('quality');q.innerHTML='<option value="auto">Auto quality</option>';levels.map((l,i)=>({l,i})).sort((a,b)=>(b.l.height||0)-(a.l.height||0)).forEach(({l,i})=>{const o=document.createElement('option');o.value=String(i);o.textContent=l.height?`${l.height}p`:`Level ${i+1}`;q.appendChild(o)});q.disabled=false;showStatus('HLS stream loaded. Available quality levels are ready.');video.play().catch(()=>{});});
+     hls.on(Hls.Events.ERROR,(_,data)=>{if(data.fatal)showStatus('Could not play this HLS stream. Check the URL, CORS access, or stream availability.')});
+   }else if(isHls && video.canPlayType('application/vnd.apple.mpegurl')){video.src=url;$('quality').disabled=true;showStatus('HLS stream loaded. Quality selection depends on browser support.');video.play().catch(()=>{});}
+   else {video.src=url;showStatus('Video link loaded. If playback does not start, check that it is a direct video URL and allows cross-origin playback.');video.play().catch(()=>{});}
+   setTitle(name||decodeURIComponent(url.split('/').pop().split(/[?#]/)[0])||'Now playing');
+ }
+ $('urlForm').addEventListener('submit',e=>{e.preventDefault();const u=$('videoUrl').value.trim();if(!u)return;loadVideo(u);$('topUrl').value=u});
+ $('searchForm').addEventListener('submit',e=>{e.preventDefault();const u=$('topUrl').value.trim();if(u){$('videoUrl').value=u;loadVideo(u)}});
+ const localFiles = [];
+ let activeLocalId = null;
+ const humanSize = n => n < 1024*1024 ? `${Math.max(1,Math.round(n/1024))} KB` : `${(n/1024/1024).toFixed(1)} MB`;
+ function addLocalFiles(files) {
+   let added = 0;
+   for (const f of files) {
+     if (!f.type.startsWith('video/') && !/\.(mp4|m4v|mov|webm|ogv|ogg|mkv|avi|m3u8)$/i.test(f.name)) continue;
+     if (localFiles.some(x => x.file.name === f.name && x.file.size === f.size && x.file.lastModified === f.lastModified)) continue;
+     localFiles.push({id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`, file:f, url:URL.createObjectURL(f)});
+     added++;
+   }
+   renderLocalLibrary();
+   showStatus(added ? `${added} video(s) added to your device library.` : 'No new video files were found in that selection.');
+ }
+ function renderLocalLibrary() {
+   const host = $('localLibrary');
+   if (!localFiles.length) { host.innerHTML = '<p class="hint">No local videos selected yet. Use “Add videos” or “Choose folder”.</p>'; return; }
+   host.innerHTML = '';
+   localFiles.forEach(item => {
+     const row = document.createElement('div');
+     row.className = 'localitem' + (item.id === activeLocalId ? ' active' : '');
+     const icon = document.createElement('div'); icon.className='fileicon'; icon.textContent='▶';
+     const info = document.createElement('div');
+     const name = document.createElement('div'); name.className='filename'; name.textContent=item.file.name;
+     const size = document.createElement('div'); size.className='filesize'; size.textContent=humanSize(item.file.size);
+     info.append(name,size);
+     const play = document.createElement('button'); play.type='button'; play.textContent='Play'; play.addEventListener('click',()=>playLocal(item.id));
+     row.append(icon,info,play); host.append(row);
+   });
+ }
+ function playLocal(id) {
+   const item = localFiles.find(x=>x.id===id); if(!item)return;
+   cleanup();
+   if (hls) { hls.destroy(); hls = null; }
+   currentUrl=''; activeLocalId=id; resetQuality();
+   video.pause();
+   video.removeAttribute('src');
+   video.load();
+   video.src = item.url;
+   video.load();
+   $('empty').classList.add('hidden');
+   setTitle(item.file.name);
+   renderLocalLibrary();
+   showStatus('Loading local video: '+item.file.name);
+   const playAttempt = video.play();
+   if (playAttempt && typeof playAttempt.then === 'function') {
+     playAttempt.then(()=>showStatus('Now playing: '+item.file.name))
+       .catch(err=>showStatus(err && err.name === 'NotSupportedError'
+         ? 'This video format/codec is not supported by this browser. Try an MP4 (H.264/AAC) file.'
+         : 'Video is loaded. Press the Play button to start, or try another file.'));
+   }
+ }
+ $('fileInput').addEventListener('change',e=>{addLocalFiles(e.target.files);e.target.value='';});
+ $('chooseVideo').addEventListener('click',()=>$('fileInput').click());
+ async function chooseFolder() {
+   // Chromium-based browsers may expose the File System Access API.
+   if (window.showDirectoryPicker) {
+     try {
+       const dir = await window.showDirectoryPicker({mode:'read'});
+       const found = [];
+       async function walk(handle) {
+         for await (const entry of handle.values()) {
+           if (entry.kind === 'file') {
+             const f = await entry.getFile();
+             if (f.type.startsWith('video/') || /\.(mp4|m4v|mov|webm|ogv|ogg|mkv|avi|m3u8)$/i.test(f.name)) found.push(f);
+           } else if (entry.kind === 'directory') await walk(entry);
+         }
+       }
+       await walk(dir); addLocalFiles(found);
+     } catch (err) {
+       if (err.name !== 'AbortError') showStatus('Folder access was not available. Try “Add videos” instead.');
+     }
+   } else {
+     const picker = document.createElement('input');
+     picker.type='file'; picker.accept='video/*'; picker.multiple=true; picker.webkitdirectory=true;
+     picker.addEventListener('change',()=>addLocalFiles(picker.files)); picker.click();
+     showStatus('Choose a folder. Your browser will provide the files inside it.');
+   }
+ }
+ $('folderBtn').addEventListener('click',chooseFolder);
+ $('folderLibraryBtn').addEventListener('click',chooseFolder);
+ $('clearLibraryBtn').addEventListener('click',()=>{
+   if (activeLocalId && video.src.startsWith('blob:')) { video.pause(); video.removeAttribute('src'); video.load(); activeLocalId=null; $('empty').classList.remove('hidden'); }
+   localFiles.forEach(x=>URL.revokeObjectURL(x.url)); localFiles.length=0; renderLocalLibrary(); showStatus('Local library list cleared.');
+ });
+ $('playBtn').addEventListener('click',()=>video.paused?video.play():video.pause());
+ video.addEventListener('play',()=>{$('playBtn').innerHTML=pauseIcon;$('playBtn').setAttribute('aria-label','Pause');$('empty').classList.add('hidden')});
+ video.addEventListener('pause',()=>{$('playBtn').innerHTML=playIcon;$('playBtn').setAttribute('aria-label','Play')});
+ video.addEventListener('timeupdate',()=>{if(video.duration){$('progress').value=video.currentTime/video.duration*1000;$('time').textContent=fmt(video.currentTime)+' / '+fmt(video.duration)}});
+ video.addEventListener('loadedmetadata',()=>{$('time').textContent=fmt(video.currentTime)+' / '+fmt(video.duration)});
+ video.addEventListener('loadeddata',()=>{if(activeLocalId)showStatus('Video ready. Press Play if it did not start automatically.')});
+ video.addEventListener('stalled',()=>{if(activeLocalId)showStatus('The browser is having trouble reading this file. Try another video format.')});
+ video.addEventListener('ended',()=>{if($('autoplay').checked){const items=[...document.querySelectorAll('.queueitem')];const idx=items.findIndex(x=>x.classList.contains('selected'));const next=items[(idx+1)%items.length];if(next)next.click()}});
+ video.addEventListener('error',()=>{if(video.currentSrc){const code=video.error?.code;const detail=code===4?'This format or codec may not be supported by your browser.':code===2?'The file or link could not be loaded. Check that it still exists and is accessible.':'Check that the link is a direct video file and that the format is supported.';showStatus('Playback failed. '+detail)}});
+ $('progress').addEventListener('input',()=>{if(video.duration)video.currentTime=Number($('progress').value)/1000*video.duration});
+ $('muteBtn').addEventListener('click',()=>{video.muted=!video.muted;$('muteBtn').style.opacity=video.muted?'.5':'1'});
+ $('speed').addEventListener('change',()=>video.playbackRate=Number($('speed').value));
+ $('quality').addEventListener('change',()=>{if(hls){if($('quality').value==='auto')hls.currentLevel=-1;else hls.currentLevel=Number($('quality').value)}});
+ $('ccBtn').addEventListener('click',()=>{const tracks=[...video.textTracks];if(!tracks.length){$('subtitlePicker').click();return}const turnOn=!tracks.some(t=>t.mode==='showing');tracks.forEach(t=>t.mode=turnOn?'showing':'disabled');$('ccBtn').style.background=turnOn?'#1768b5':'transparent'});
+ $('subtitleFile').addEventListener('change',e=>{const f=e.target.files[0];if(f)addSubtitleFromFile(f)});
+ function addSubtitleFromFile(f){if(!/\.vtt$/i.test(f.name)){showStatus('Please choose a WebVTT (.vtt) subtitle file.');return}if(subtitleObjectUrl)URL.revokeObjectURL(subtitleObjectUrl);subtitleObjectUrl=URL.createObjectURL(f);addTrack(subtitleObjectUrl,f.name);showStatus('Subtitle track added: '+f.name)}
+ function addTrack(src,label){video.querySelectorAll('track').forEach(t=>t.remove());const t=document.createElement('track');t.kind='subtitles';t.label=label||'Subtitles';t.srclang='en';t.src=src;t.default=true;video.appendChild(t);t.addEventListener('load',()=>{if(video.textTracks.length)video.textTracks[video.textTracks.length-1].mode='showing'});$('ccBtn').style.background='#1768b5'}
+ $('addSubtitle').addEventListener('click',()=>{const u=$('subtitleUrl').value.trim();if(!u){$('subtitleFile').click();return}if(!/\.vtt($|[?#])/i.test(u)){showStatus('Subtitle URL should point to a .vtt file.');return}addTrack(u,'Subtitles');showStatus('Subtitle track added. It may take a moment to load.')});
+ $('fullscreenBtn').addEventListener('click',async()=>{try{if(!document.fullscreenElement)await $('player').requestFullscreen();else await document.exitFullscreen()}catch(e){showStatus('Fullscreen is not available in this browser.')}});
+ $('shareBtn').addEventListener('click',async()=>{if(!currentUrl){showStatus('Load a video URL first to share its link.');return}try{if(navigator.share)await navigator.share({title:$('videoTitle').textContent,url:currentUrl});else{await navigator.clipboard.writeText(currentUrl);showStatus('Video link copied.')}}catch(e){if(e.name!=='AbortError')showStatus('Could not share automatically. Copy the video URL from the input above.')}});
+ $('saveBtn').addEventListener('click',()=>{if(!currentUrl){showStatus('Load a video URL first.');return}const list=JSON.parse(localStorage.getItem('jeffSavedVideos')||'[]');const exists=list.some(x=>x.url===currentUrl);if(!exists){list.unshift({url:currentUrl,title:$('videoTitle').textContent});localStorage.setItem('jeffSavedVideos',JSON.stringify(list.slice(0,30)));showStatus('Video saved in this browser.')}else showStatus('This video is already saved in this browser.')});
+ $('themeBtn').addEventListener('click',()=>{const light=document.body.dataset.theme!=='light';document.body.dataset.theme=light?'light':'dark';document.body.style.background=light?'#eef3f9':'radial-gradient(ellipse at 40% -30%,#142847 0,transparent 55%),var(--bg)';document.body.style.color=light?'#111827':'var(--text)';document.querySelectorAll('.sidebar,.linkpanel').forEach(x=>{x.style.background=light?'#fff':'';x.style.color=light?'#111827':''});showStatus(light?'Light appearance enabled.':'Dark appearance enabled.')});
+ document.querySelectorAll('.queueitem').forEach(item=>item.addEventListener('click',()=>{document.querySelectorAll('.queueitem').forEach(x=>x.classList.remove('selected'));item.classList.add('selected');showStatus('This is a sample queue item. Paste a real video URL above to play it.')}));
+ $('subtitlePicker').addEventListener('change',e=>{const f=e.target.files[0];if(f)addSubtitleFromFile(f)});
+ document.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();video.paused?video.play():video.pause()}if(e.key.toLowerCase()==='f')$('fullscreenBtn').click();if(e.key.toLowerCase()==='m')$('muteBtn').click()});
+})();
+</script>
+</body>
+</html>
