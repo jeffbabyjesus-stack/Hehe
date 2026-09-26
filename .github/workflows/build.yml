@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,13 +20,10 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 11076708
-
-      - name: Accept licenses
-        run: yes | sdkmanager --licenses || true
+      - name: Accept all SDK licenses manually
+        run: |
+          yes | sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT || true
+          yes | sdkmanager "platforms;android-35" "build-tools;35.0.0" --sdk_root=$ANDROID_SDK_ROOT || true
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew || true
